@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>{%block title%}Board{%endblock%}</title>
+</head>
+<body>
+    {% block content %}
+    <h1>Boggle Game</h1>
+    <h2>Score: <span id="score">0</span></h2>
+    <h2>Time Remaining: <span id="timer">60</span> seconds</h2>
+  
+    <table>
+        {% for row in board %}
+          <tr>
+            {% for letter in row %}
+              <td>{{ letter }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </table>
+    <form action="/check-guess" method="post" id="form">
+        <label for="guess">Input answer here:</label>
+        <input type="text" placeholder="answer" id="guess" name="guess">
+        <button>submit</button>
+    </form>
+
+
+    <script src="/static/form.js"></script>
+    {% endblock %}
+</body>
+</html>
