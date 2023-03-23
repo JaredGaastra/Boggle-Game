@@ -24,16 +24,15 @@ class Boggle():
         board = []
 
         for y in range(5):
-            #adding random letters that are uppercase into the board 
-            row = [choice(string.ascii_uppercase) for i in range(5)] #chooses 5 letters
-            board.append(row) #throw them into th board which is an array
+            row = [choice(string.ascii_uppercase) for i in range(5)]
+            board.append(row)
 
         return board
 
     def check_valid_word(self, board, word):
         """Check if a word is a valid word in the dictionary and/or the boggle board"""
 
-        word_exists = word in self.words 
+        word_exists = word in self.words
         valid_word = self.find(board, word.upper())
 
         if word_exists and valid_word:

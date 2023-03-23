@@ -2,6 +2,8 @@ from boggle import Boggle
 from flask import Flask, redirect, render_template, session, request, flash, url_for, json, jsonify 
 from flask_debugtoolbar import DebugToolbarExtension
 import requests
+import pdb
+import logging
 
 
 app=Flask(__name__)
@@ -10,36 +12,53 @@ boggle_game = Boggle()
 toolbar = DebugToolbarExtension(app)
 app.debug = True
 
+    
+
 
 @app.route('/')
 def make_board():
+    """creates board and shows board"""
     board = boggle_game.make_board()
     session['board'] = board
-    return render_template('board.html', board=board)
+    highscore = session.get("highscore", 0)
+    nplays = session.get("nplays", 0)
+
+    return render_template("board.html", board=board,
+                           highscore=highscore,
+                           nplays=nplays)
 
 
-@app.route("/check-guess", methods=["POST"])
+@app.route("/check-guess")
 def check_guess():
-    guess = request.get_json()["guess"]
-  
-    # Check if word is valid on board
-    if not boggle_game.check_valid_word(guess):
-        return jsonify(result="not-a-word")
-  
-    if not boggle_game.check_word_on_board(guess):
-        return jsonify(result="not-on-board")
-  
-    return jsonify(result="ok")
+    # 
+    word = request.args["word"]
+    board = session["board"]
+    response = boggle_game.check_valid_word(board, word)
 
-@app.route('/make-guess', methods=['POST'])
-def make_guess():
-    guess = request.form['guess']
-    response = requests.post('http://127.0.0.1:5000/check-guess', json={'guess': guess}, headers={'Content-Type': 'application/json'})
-    result = response.json()['result']
-    return redirect(url_for('check_guess'), jsonify(result=result))
+    return jsonify({'result': response})
+
+    # app.logger.info(guess)
+    # # pdb.set_trace()
+    # # Check if word is valid on board
+    # if not boggle_game.check_valid_word(guess):
+    #     return jsonify(result="not-a-word")
+  
+    # if not boggle_game.check_word_on_board(guess):
+    #     return jsonify(result="not-on-board")
+  
+    # return jsonify(result="ok")
+
+@app.route("/post-score", methods=["POST"])
+def post_score():
+    """Receive score, update nplays, update high score if appropriate."""
+
+    score = request.json["score"]
+    highscore = session.get("highscore", 0)
+    nplays = session.get("nplays", 0)
+
+    session['nplays'] = nplays + 1
+    session['highscore'] = max(score, highscore)
+
+    return jsonify(brokeRecord=score > highscore)
     
-
-@app.route('/restart')
-def restart():
-    render_template('restart.html') 
 
